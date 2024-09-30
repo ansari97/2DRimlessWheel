@@ -25,14 +25,30 @@ J = I/(2*m*l^2);
 
 lam = 1/(2*J+1);
 
+collision_angle = pi/n + slope_angle;
+
+% Define vel_loss
+vel_loss = 0.5;
+
 %  initial conditions
 init_ang = 0.1;
 init_vel = 0.3;
 init_con = [init_ang, init_vel];
 
-% len(init_con)    
+% len(init_con)  
 
-[t, y] = ode45(@(t,y) func(t,y, lam), [0, 10], init_con);
+% % % Differential equation
+dydt = @(t,y) [y(2); lam^2*sin(y(1))];
+
+collisionEvent = @(t,y, collision_angle) y(1) - collision_angle;
+
+
+
+[t, y] = ode45(dydt, [0, 10], init_con);
+
+E = odeEvent(EventFcn=collisionEvent, ...
+             Response="callback", ...
+             CallbackFcn=@collisionResponse);
 
 % y_sol = solution.y
 
