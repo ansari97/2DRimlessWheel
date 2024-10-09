@@ -2,14 +2,13 @@
 This file contains the main code for defining the dynamics of a 2D rimless wheel moving down a slope
 The normal vector to the slope defines the reference axis
 %}
-
 close all
 clear
 clc
 
 % % Define paramaters
 %  Slope
-slope_angle = 60;  % degrees
+slope_angle = 10;  % degrees
 slope_angle = deg2rad(slope_angle);  % angle in radians
 
 %  Wheel
@@ -31,14 +30,14 @@ collision_angle = abs(pi/n);
 vel_coeff = (I + m*l^2*cos(spoke_angle))/(I + m*l^2);
 
 %  initial conditions
-init_ang = 0; % initial angle
-init_vel = 0.3; % initial angular velocity
+init_ang = 0.1; % initial angle
+init_vel = 1; % initial angular velocity
 init_con = [init_ang, init_vel];
 
 % len(init_con)  
 
 % % % Differential equation
-dydt = @(t,y) [y(2); sin(y(1))];
+dydt = @(t,y) [y(2); sin(y(1) + slope_angle)];
 
 collisionEvent = @(t,y) y(1) - collision_angle;
 
@@ -48,6 +47,7 @@ time_interval = [0 40]; % time interval for the ODE solution
 % [t, y] = ode45(dydt, time_interval, init_con);
 
 E = odeEvent(EventFcn=collisionEvent, ...
+             Direction="both", ...
              Response="callback", ...
              CallbackFcn=@collisionResponse);
 
@@ -77,8 +77,6 @@ hold off
 
 figure;
 plot(t, y_vel)
-plot.show
-
 
 
 
