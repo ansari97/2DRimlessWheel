@@ -5,11 +5,15 @@ The normal vector to the slope defines the reference axis
 close all
 clear
 clc
+global n vel_coeff;
 
 % % Define paramaters
 %  Slope
-slope_angle = 10;  % degrees
+slope_angle = 5;  % degrees
 slope_angle = deg2rad(slope_angle);  % angle in radians
+
+x = 1; % ramp base
+slope_param = [x, slope_angle];
 
 %  Wheel
 l = 0.10;   % spoke length in m
@@ -17,11 +21,13 @@ m = 0.05;  % mass in kg
 I = 0.001;  % moment of inertia about center of mass/center of wheel in kgm^2
 n = 6; % spokes
 
+spoke_angle = 2*pi/n; % angle between two spokes
+
 J = I/(2*m*l^2); % radius of gyration
 
 lam = 1/(2*J+1); % lambda
 
-spoke_angle = 2*pi/n; % angle between two spokes
+wheel_param = [l m I n spoke_angle];
 
 % general case
 collision_angle = abs(pi/n);
@@ -62,21 +68,29 @@ t = y_sol.Time;
 y_ang = y_val(1, :)';
 y_vel = y_val(2, :)';
 
-t_event = y_sol.EventTime
+state = [y_ang, y_vel];
 
-y_ang_event = y_sol.EventSolution(1,:)
-y_vel_event = y_sol.EventSolution(2,:)
+t_event = y_sol.EventTime;
+
+y_ang_event = y_sol.EventSolution(1,:);
+y_vel_event = y_sol.EventSolution(2,:);
 
 % print(y_sol)
 
-plot(t, y_ang)
-hold on
-ylim([-collision_angle, collision_angle])
-plot(t, collision_angle*ones(size(t)))
-hold off
+plot(t, y_ang);
+hold on;
+ylim([-collision_angle, collision_angle]);
+plot(t, collision_angle*ones(size(t)));
+hold off;
 
 figure;
-plot(t, y_vel)
+plot(t, y_vel);
+
+wheelPlotter(slope_param, wheel_param, state);
+
+
+
+
 
 
 
