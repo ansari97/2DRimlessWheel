@@ -32,7 +32,8 @@ for i = 1:n
         plot(P_feet(i, 1), P_feet(i, 2), Marker = ".", MarkerSize= foot_size ,Color=color_val);
     
     end
-   axis equal;
+    axis equal;
 
 end
+hold off;
 end
