@@ -86,7 +86,7 @@ hold off;
 figure;
 plot(t, y_vel);
 
-wheelPlotter(slope_param, wheel_param, state);
+wheelTrajPlot(slope_param, wheel_param, state);
 
 
 

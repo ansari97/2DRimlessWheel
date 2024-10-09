@@ -1,10 +1,12 @@
-function wheelPlotter(slope_param, wheel_param, init_state)
+function wheelTrajPlot(slope_param, wheel_param, state)
 
-init_ang = init_state(1)
-init_vel = init_state(2)
+y_ang = state(1);
+y_vel = state(2);
 
 slope_ang = slope_param(2);
 l = wheel_param(1);
+n = wheel_param(4);
+
 spoke_ang = wheel_param(5);
 
     function y = yPoint(x)
@@ -21,9 +23,8 @@ spoke_ang = wheel_param(5);
         p = [x, y];
     end
 
-    function x_com, y_com = foot2com(x_foot, y_foot)
-        x_com = x_foot - l*cos(init_ang)
-        y_com = y_foot + l*sin(init_ang)
+    function com = foot2com(p_foot, ang)
+        com = p_foot + l*[-cos(ang), sin(ang)];
     end
 
 % plot the wheel
@@ -52,6 +53,8 @@ p_init = slope2cart(s_init)
 
 plot(p_init(1), p_init(2), "bo")
 
-plot()
+com = foot2com(p_init, pi/n + slope_ang)
+plot(com(1), com(2), '*')
+hold off
 
 end
