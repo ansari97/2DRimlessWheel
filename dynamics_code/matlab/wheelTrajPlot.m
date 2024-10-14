@@ -1,19 +1,13 @@
-function wheelTrajPlot(slope_param, wheel_param, state, collision_events)
-%{
+function wheelTrajPlot(slope_x_length, slope_ang, l, n, sol, event_sol)
 
-%}
+t = sol(1, :); % time vector
+ang = sol(2, :); % wheel angle
 
-state
+collision_time = event_sol(1, :);
+collision_ang = pi/n;
+% collision_vel = event_sol(3, :);
 
-collision_time = collision_events(:,1);
-collision_ang = collision_events(:,2)
-collision_vel = collision_events(:,3);
-
-slope_ang = slope_param(2);
-l = wheel_param(1);
-n = wheel_param(4);
-
-spoke_ang = wheel_param(5);
+spoke_ang = 2*pi/n;
 
     function y = yPoint(x)
         y = tan(slope_ang)*x;
@@ -33,40 +27,41 @@ spoke_ang = wheel_param(5);
         com = p_foot + l*[-cos(ang), sin(ang)];
     end
 
-% plot the wheel
-x_slope = slope_param(1); % slope run
-h_slope = yPoint(x_slope); % slope rise
-h_plot = h_slope + wheel_param(1)*3;
+% determine slope parameters
+x_slope = slope_x_length; % slope run
+y_slope = yPoint(x_slope); % slope rise
+h_plot = y_slope + l*3;
 
-
-
-
-
-% axis equal;
-
-% Start simulation
-% point of initial contact
-% s is the variable along the slope starting at origin
-% x is the horiontal run from the origin
-% y is the vertical rise from the origin
-n = size(state, 1);
 scaling = 1000;
+
+% create a separate figure
 f = figure;
 
-f.Position(3: 4) = scaling*[x_slope h_plot];
-p_contact = [x_slope h_slope];
-slope_dist = sqrt(2*l^2 - 2*l^2*cos(wheel_param(5)))
+wheelVid = VideoWriter('wheelTraj'); %open video file
+wheelVid.FrameRate = 10;  %can adjust this, 5 - 10 works well for me
+open(wheelVid)
+% f.Position(3:4) = scaling*[x_slope h_plot];
 
-for i = 1:n
-    if abs(state(i, 1) - collision_ang(1)) < 0.00001
-        state(i, 1)
+% determine the foot point of contact
+p_contact = [x_slope y_slope]; %initialize at the top of the slope
 
-        p_contact = p_contact - slope2cart(slope_dist)
+slope_dist = sqrt(2*l^2 - 2*l^2*cos(spoke_ang)); % distance between points of contact along the slope 
+
+len = length(ang); % length of the ang vector
+for i = 1:len
+    if ang(i)>0 && abs(ang(i) - collision_ang) < 0.00001
+        % ang(i)
+        % ang(i+1)
+        % ang(i+2)
+        p_contact = p_contact - slope2cart(slope_dist);
+        wheelPlot(x_slope, y_slope, h_plot, slope_ang, l, n, -ang(i), p_contact);
+    else
+        wheelPlot(x_slope, y_slope, h_plot, slope_ang, l, n, ang(i), p_contact);
     end
-    
-    wheelPlot(x_slope, h_slope, h_plot, slope_ang, wheel_param, state(i,1), p_contact);
-    pause(0.0005);
+    pause(0.1);
+
+    frame = getframe(gcf); %get frame
+    writeVideo(wheelVid, frame);
 end
-
-
+close(wheelVid)
 end

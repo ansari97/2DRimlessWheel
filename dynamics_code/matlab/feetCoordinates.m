@@ -1,4 +1,5 @@
-function P_feet = feetCoordinates(com, l, n, spoke_ang, slope_ang, ang)
+function P_feet = feetCoordinates(com, l, n, slope_ang, ang)
+spoke_ang = 2*pi/n;
 P_feet = zeros(n, 2);
 
 for i = 1:n

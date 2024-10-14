@@ -1,3 +1,4 @@
-function dydt = diffFunc(t, y, lam)
-dydt = [y(2); lam^2*sin(y(1))];
+function dydt = diffFunc(t, y)
+global slope_angle;
+dydt = [y(2); sin(y(1) + slope_angle)];
 end
