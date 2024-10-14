@@ -1,7 +1,13 @@
-function wheelTrajPlot(slope_param, wheel_param, state)
+function wheelTrajPlot(slope_param, wheel_param, state, collision_events)
+%{
 
-y_ang = state(1);
-y_vel = state(2);
+%}
+
+state
+
+collision_time = collision_events(:,1);
+collision_ang = collision_events(:,2)
+collision_vel = collision_events(:,3);
 
 slope_ang = slope_param(2);
 l = wheel_param(1);
@@ -30,15 +36,12 @@ spoke_ang = wheel_param(5);
 % plot the wheel
 x_slope = slope_param(1); % slope run
 h_slope = yPoint(x_slope); % slope rise
-h_plot = h_slope + wheel_param(1)*1.5;
+h_plot = h_slope + wheel_param(1)*3;
 
-scaling = 1000;
 
-f = figure;
-f.Position(3:4) = scaling*[x_slope h_plot];
-plot([0, x_slope], [0, h_slope], "LineWidth", 1, "Color", [1.0, 0.5,0.5]);
-axis([0 x_slope 0 h_plot]); 
-hold on;
+
+
+
 % axis equal;
 
 % Start simulation
@@ -46,15 +49,24 @@ hold on;
 % s is the variable along the slope starting at origin
 % x is the horiontal run from the origin
 % y is the vertical rise from the origin
+n = size(state, 1);
+scaling = 1000;
+f = figure;
 
-s_plot = cart2slope(x_slope, h_slope)
-s_init = s_plot - l*sin(spoke_ang)/sin(pi/2 - spoke_ang/2)
-p_init = slope2cart(s_init)
+f.Position(3: 4) = scaling*[x_slope h_plot];
+p_contact = [x_slope h_slope];
+slope_dist = sqrt(2*l^2 - 2*l^2*cos(wheel_param(5)))
 
-plot(p_init(1), p_init(2), "bo")
+for i = 1:n
+    if abs(state(i, 1) - collision_ang(1)) < 0.00001
+        state(i, 1)
 
-com = foot2com(p_init, pi/n + slope_ang)
-plot(com(1), com(2), '*')
-hold off
+        p_contact = p_contact - slope2cart(slope_dist)
+    end
+    
+    wheelPlot(x_slope, h_slope, h_plot, slope_ang, wheel_param, state(i,1), p_contact);
+    pause(0.0005);
+end
+
 
 end
