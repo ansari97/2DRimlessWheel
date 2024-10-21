@@ -14,7 +14,7 @@ slope_x_length = 5; % slope run in m, used for plotting
 
 %% Define parameters of the wheel
 %  Wheel
-l = 0.2;   % spoke length in m
+l = 0.5;   % spoke length in m
 m = 0.5;  % mass in kg
 I = 0.01;  % moment of inertia about center of mass/center of wheel in kgm^2
 n = 7; % spokes
@@ -36,14 +36,14 @@ vel_coeff = (I + m*l^2*cos(spoke_angle))/(I + m*l^2);
 
 %%  initial conditions
 init_ang = -pi/n; % initial angle
-init_vel = 2; % initial angular velocity
+init_vel = 0.5; % initial angular velocity
 init_con = [init_ang, init_vel];
 stop_vel = 0.00001; % minimum value; if velocity of wheel is less than this value, stop simulation
 
 %% Differential equation for the swing
 % dydt = @(t,y) [y(2); sin(y(1) + slope_angle)];
 
-time_interval = [0 20]; % time interval for the ODE solution
+time_interval = [0 6]; % time interval for the ODE solution
 % collision_stop = false;
 % num_collisions = 5;
 
@@ -59,7 +59,7 @@ E = odeEvent(EventFcn=@collisionEvent, ...
 % create ode object
 F = ode(ODEFcn = @diffFunc, InitialValue = init_con, EventDefinition = E, Solver="ode45", Parameters=[slope_angle, n, collision_angle, vel_coeff, stop_vel]);
 % set solver options
-F.SolverOptions.MaxStep = 0.01;
+F.SolverOptions.MaxStep = 0.1;
 
 % Solve ODE
 y_sol = solve(F, time_interval(1), time_interval(2), Refine=8);
@@ -74,6 +74,8 @@ sol = [t; state(1, :); state(2, :)];
 % matrix of event values (time as row 1, angle as 2, ang_vel as 3)
 if ~isempty(y_sol.EventTime)
     event_sol = [y_sol.EventTime; y_sol.EventSolution(1,:); y_sol.EventSolution(2,:)];
+else
+    error('No collision occurs during the time interval used. Increase the time interval for the simulation.')
 end
 
 %% Plotting
@@ -105,4 +107,4 @@ hold off;
 phasePlot(state(1, :), state(2, :), collision_angle, F.SolverOptions.MaxStep, 2);
 
 % plot the wheel trajectory
-% wheelTrajPlot(slope_x_length, slope_angle, l, n, sol, event_sol);
+frame = wheelTrajPlot(slope_x_length, slope_angle, l, n, sol, event_sol);

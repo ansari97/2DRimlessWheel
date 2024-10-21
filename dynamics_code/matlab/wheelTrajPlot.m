@@ -1,7 +1,11 @@
-function wheelTrajPlot(slope_x_length, slope_ang, l, n, sol, event_sol)
+function frame = wheelTrajPlot(slope_x_length, slope_ang, l, n, sol, event_sol)
+% wheelTrajPlot Plots the wheel trajectory
+%   
+%
 
 t = sol(1, :); % time vector
 ang = sol(2, :); % wheel angle
+vel = sol(3, :); % wheel velocity vector
 
 collision_time = event_sol(1, :);
 collision_ang = pi/n;
@@ -42,26 +46,33 @@ f = figure;
 % open(wheelVid)
 % f.Position(3:4) = scaling*[x_slope h_plot];
 
-% determine the foot point of contact
-p_contact = [x_slope y_slope]; %initialize at the top of the slope
 
+
+
+% determine the foot point of contact
 slope_dist = sqrt(2*l^2 - 2*l^2*cos(spoke_ang)); % distance between points of contact along the slope 
 
+s_init = cart2slope(x_slope, y_slope) - 2*slope_dist;
+p_contact = slope2cart(s_init); %initialize at the top of the slope
+
+
 len = length(ang); % length of the ang vector
+% frame = zeros(len);
+
 for i = 1:len
-    if ang(i)>0 && abs(ang(i) - collision_ang) < 0.00001
-        % ang(i)
-        % ang(i+1)
-        % ang(i+2)
+    if vel(i)>0 && abs(ang(i) - collision_ang) < 0.00001
         p_contact = p_contact - slope2cart(slope_dist);
         wheelPlot(x_slope, y_slope, h_plot, slope_ang, l, n, -ang(i), p_contact);
+    elseif vel(i)<0 && abs(ang(i) - collision_ang) < 0.00001
+        p_contact = p_contact + slope2cart(slope_dist);
+        wheelPlot(x_slope, y_slope, h_plot, slope_ang, l, n, ang(i), p_contact);
     else
         wheelPlot(x_slope, y_slope, h_plot, slope_ang, l, n, ang(i), p_contact);
     end
-    pause(0.1);
+    pause(0.05);
 
-    frame = getframe(gcf); %get frame
+    frame(i) = getframe; %get frame
     % writeVideo(wheelVid, frame);
 end
-% close(wheelVid)
+% movie(frame);
 end
