@@ -7,27 +7,30 @@ clear
 clc
 
 %% global variables
-% these global variables are being used by the collision response function
-global n vel_coeff collision_angle slope_angle lam; 
+% *these global variables are being used by the collision response function
+% *Cannot think of a better approach to use parameters inside the function
+% file than using global variables
+% *Function handle does not allow passing of parameters
+global stop_vel n vel_coeff collision_angle slope_angle lam; 
 
 %% Define slope
 %  Slope
-slope_angle = 30;  % degrees
+slope_angle = 10;  % degrees
 slope_angle = deg2rad(slope_angle);  % angle in radians
-slope_x_length = 5; % slope run in m
+slope_x_length = 5; % slope run in m, used for plotting
 
 %% Define parameters of the wheel
 %  Wheel
 l = 0.2;   % spoke length in m
 m = 0.5;  % mass in kg
 I = 0.01;  % moment of inertia about center of mass/center of wheel in kgm^2
-n = 6; % spokes
+n = 5; % spokes
 
 spoke_angle = 2*pi/n; % angle between two spokes
 
 J = I/(2*m*l^2); % radius of gyration
 
-lam = 1/(2*J+1); % lambda
+lam = 1/(2*J+1); % lambda, used as an intermediate variable
 
 %% Collision event
 % general case
@@ -40,13 +43,14 @@ vel_coeff = (I + m*l^2*cos(spoke_angle))/(I + m*l^2);
 
 %%  initial conditions
 init_ang = -pi/n; % initial angle
-init_vel = 1.2; % initial angular velocity
+init_vel = 1.5; % initial angular velocity
 init_con = [init_ang, init_vel];
+stop_vel = 0.00001; % minimum value; if velocity of wheel is less than this value, stop simulation
 
 %% Differential equation for the swing
 % dydt = @(t,y) [y(2); sin(y(1) + slope_angle)];
 
-time_interval = [0 5]; % time interval for the ODE solution
+time_interval = [0 16]; % time interval for the ODE solution
 % collision_stop = false;
 % num_collisions = 5;
 
@@ -55,7 +59,7 @@ time_interval = [0 5]; % time interval for the ODE solution
 
 % Define ODE event
 E = odeEvent(EventFcn=@collisionEvent, ...
-    Direction="both", ...
+    Direction="ascending", ...
     Response="callback", ...
     CallbackFcn=@collisionResponse);
 
@@ -110,4 +114,4 @@ hold off;
 phasePlot(state(1, :), state(2, :), collision_angle);
 
 % plot the wheel trajectory
-wheelTrajPlot(slope_x_length, slope_angle, l, n, sol, event_sol);
+% wheelTrajPlot(slope_x_length, slope_angle, l, n, sol, event_sol);

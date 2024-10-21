@@ -37,9 +37,9 @@ scaling = 1000;
 % create a separate figure
 f = figure;
 
-wheelVid = VideoWriter('wheelTraj'); %open video file
-wheelVid.FrameRate = 10;  %can adjust this, 5 - 10 works well for me
-open(wheelVid)
+% wheelVid = VideoWriter('wheelTraj'); %open video file
+% wheelVid.FrameRate = 10;  %can adjust this, 5 - 10 works well
+% open(wheelVid)
 % f.Position(3:4) = scaling*[x_slope h_plot];
 
 % determine the foot point of contact
@@ -61,7 +61,7 @@ for i = 1:len
     pause(0.1);
 
     frame = getframe(gcf); %get frame
-    writeVideo(wheelVid, frame);
+    % writeVideo(wheelVid, frame);
 end
-close(wheelVid)
+% close(wheelVid)
 end

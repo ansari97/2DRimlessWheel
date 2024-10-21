@@ -1,6 +1,6 @@
 function phasePlot(ang, vel, collision_angle)
 %% define range
-range = collision_angle*0.0001;
+range = collision_angle*0.000001;
 
 % find indices where collision occurs
 % can also be got from the event time vector
@@ -30,6 +30,8 @@ end
 xline([-collision_angle collision_angle], 'b-');
 
 xlim([-collision_angle, collision_angle]);
+xlabel('ang (rad)')
+ylabel('ang vel(rad/s)')
 % ylim([-2, 2]);
 % grid on;
 hold off;
