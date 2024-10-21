@@ -1,18 +1,17 @@
-function [stop,  y] = collisionResponse(t, y)
-global n vel_coeff stop_vel;
-
+function [stop,  y, p] = collisionResponse(t, y,i,p)
 
 % reset the angle
 if y(2) >= 0
-    y(1) = - pi/n;
+    y(1) = - pi/p(2);
 else
-    y(1) = + pi/n;
+    y(1) = + pi/p(2);
 end
 
 % velocity is scaled down by the vel_coeff factor
-y(2) = vel_coeff*y(2); 
+y(2) = p(4)*y(2); 
 
-if abs(y(2)) < stop_vel
+% if velocity is less than a threshold value, stop solving
+if abs(y(2)) < p(5)
     stop = true;
 else
     stop = false;

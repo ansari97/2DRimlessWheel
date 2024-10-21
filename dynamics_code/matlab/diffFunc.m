@@ -1,4 +1,3 @@
-function dydt = diffFunc(t, y)
-global slope_angle;
-dydt = [y(2); sin(y(1) + slope_angle)];
+function dydt = diffFunc(t,y,p)
+dydt = [y(2); sin(y(1) + p(1))];
 end
