@@ -15,7 +15,7 @@ global stop_vel n vel_coeff collision_angle slope_angle lam;
 
 %% Define slope
 %  Slope
-slope_angle = 10;  % degrees
+slope_angle = 2;  % degrees
 slope_angle = deg2rad(slope_angle);  % angle in radians
 slope_x_length = 5; % slope run in m, used for plotting
 
@@ -60,15 +60,15 @@ time_interval = [0 16]; % time interval for the ODE solution
 % Define ODE event
 E = odeEvent(EventFcn=@collisionEvent, ...
     Direction="ascending", ...
-    Response="callback", ...
-    CallbackFcn=@collisionResponse);
+    Response="callback");
+
+E.CallbackFcn = @collisionResponse;
 
 % create ode object
-F = ode(ODEFcn = @diffFunc, InitialValue = init_con, EventDefinition = E);
+F = ode(ODEFcn = @diffFunc, InitialValue = init_con, EventDefinition = E, Solver="ode45");
 
 % set solver options
-F.Solver = "ode45";
-F.SolverOptions.MaxStep = 0.1;
+F.SolverOptions.MaxStep = 0.01;
 
 % Solve ODE
 y_sol = solve(F, time_interval(1), time_interval(2), Refine=8);
@@ -111,7 +111,7 @@ ylabel('angular velocity (rad/s)');
 hold off;
 
 % plot the phase plot
-phasePlot(state(1, :), state(2, :), collision_angle);
+phasePlot(state(1, :), state(2, :), collision_angle, F.SolverOptions.MaxStep, 2);
 
 % plot the wheel trajectory
 % wheelTrajPlot(slope_x_length, slope_angle, l, n, sol, event_sol);
