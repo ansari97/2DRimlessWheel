@@ -51,7 +51,7 @@ else
     xlim([-collision_angle, collision_angle]);
     xlabel('ang (rad)')
     ylabel('ang vel(rad/s)')
-    ylim(abs(max(vel))*[-1.1, 1.1]);
+    ylim(max(abs(vel))*[-1.1, 1.1]);
     % grid on;
     hold off;
 end

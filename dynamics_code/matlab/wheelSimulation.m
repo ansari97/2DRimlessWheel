@@ -1,10 +1,39 @@
-function [sol, event_sol, frame ]= wheelSimulation(slope_angle, l, m, I, n, init_con, stop_vel, time_interval, solver, solver_max_step)
+function [y_sol, sol, event_sol, frame]= wheelSimulation(slope_angle, l, m, I, n, init_con, stop_vel, time_interval, solver_type, solver_max_step, phase_plot, fig_plot)
+% wheelSimulation   Main function for simulating the 2D rimless wheel
+%   [y_sol, sol, event_sol, frame]= wheelSimulation(slope_angle, l, m, I, n, init_con, stop_vel, time_interval, solver, solver_max_step, phase_plot, fig_plot)
+%   
+%   slope_angle is the angle of the slope in degrees, the slope is always
+%       declining from right to left
+% 
+%   l is the spoke length in m
+% 
+%   m is the mass of the wheel in kg
+% 
+%   I in the mass moment of inertia in kg.m^2
+% 
+%   n is the number of spokes
+% 
+%   init_con is the vector of initial conditions in the form 
+%       [initial angle, initial velocity]
+% 
+%   stop_vel is the minimum speed to stop the ode solution
+% 
+%   time_interval is the array of time in the form
+%       [initial time, end time]
+% 
+%   solver_type is the ODE solver
+% 
+%   solver_max_step is the max step for the ODE solver
+% 
+%   phase_plot is a boolean to select
+% 
+%   fig_plot is a boolean to select
 
 %% Define slope
 %  Slope
 % slope_angle = 1;  % degrees
 slope_angle = deg2rad(slope_angle);  % angle in radians
-slope_x_length = 5; % slope run in m, used for plotting
+slope_x_length = 10; % slope run in m, used for plotting
 
 %% Define parameters of the wheel
 %  Wheel
@@ -51,7 +80,7 @@ E = odeEvent(EventFcn=@collisionEvent, ...
     CallbackFcn=@collisionResponse);
 
 % create ode object
-F = ode(ODEFcn = @diffFunc, InitialValue = init_con, EventDefinition = E, Solver= solver, Parameters=[slope_angle, n, collision_angle, vel_coeff, stop_vel]);
+F = ode(ODEFcn = @diffFunc, InitialValue = init_con, EventDefinition = E, Solver= solver_type, Parameters=[slope_angle, n, collision_angle, vel_coeff, stop_vel]);
 % set solver options
 F.SolverOptions.MaxStep = solver_max_step;
 
@@ -98,9 +127,14 @@ ylabel('angular velocity (rad/s)');
 hold off;
 
 % plot the phase plot with plot_type=2, plot_type 1 is under construction
-phasePlot(state(1, :), state(2, :), collision_angle, solver_max_step, 2);
+if phase_plot == true
+    phasePlot(state(1, :), state(2, :), collision_angle, solver_max_step, 2);
+end
 
 % plot the wheel trajectory
-frame = wheelTrajPlot(slope_x_length, slope_angle, l, n, sol, event_sol);
-% frame = 0;
+if fig_plot == true
+    frame = wheelTrajPlot(slope_x_length, slope_angle, l, n, sol, event_sol);
+else
+    frame = 0;
+end
 end

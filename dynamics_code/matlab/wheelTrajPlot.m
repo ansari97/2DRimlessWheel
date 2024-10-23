@@ -52,7 +52,7 @@ f = figure;
 % determine the foot point of contact
 slope_dist = sqrt(2*l^2 - 2*l^2*cos(spoke_ang)); % distance between points of contact along the slope 
 
-s_init = cart2slope(x_slope, y_slope) - 2*slope_dist;
+s_init = cart2slope(x_slope, y_slope) - 5*slope_dist;
 p_contact = slope2cart(s_init); %initialize at the top of the slope
 
 
