@@ -1,78 +1,102 @@
-function frame = wheelTrajPlot(slope_x_length, slope_ang, l, n, sol, event_sol)
-% wheelTrajPlot Plots the wheel trajectory
-%   
+function frame = wheelTrajPlot(slope_ang, l, n, sol, event_sol)
+% wheelTrajPlot function for plotting the wheel given the slope and wheel parameters, and the wheel state
 %
+%   frame = wheelTrajPlot(slope_x_length, slope_ang, l, n, sol, event_sol)
+%%%
 
+% Slope parameters for plotting
+slope_length = 20 * l; % slope length is 10 times the body length
+% [slope_x, slope_y] = slope2cart(slope_length, slope_ang)
+
+% unpack the solution matrix
 t = sol(1, :); % time vector
 ang = sol(2, :); % wheel angle
 vel = sol(3, :); % wheel velocity vector
 
+% unpack the event solution matrix
 collision_time = event_sol(1, :);
-collision_ang = pi/n;
-% collision_vel = event_sol(3, :);
 
+% define angles
+collision_ang = pi/n;
 spoke_ang = 2*pi/n;
 
-    function y = yPoint(x)
-        y = tan(slope_ang)*x;
-    end
-
-    function s = cart2slope(x, y)
-        s = sqrt(x^2 + y^2);
-    end
-
-    function p = slope2cart(s)
-        x = s*cos(slope_ang);
-        y = s*sin(slope_ang);
-        p = [x, y];
-    end
-
-    function com = foot2com(p_foot, ang)
-        com = p_foot + l*[-cos(ang), sin(ang)];
-    end
-
-% determine slope parameters
-x_slope = slope_x_length; % slope run
-y_slope = yPoint(x_slope); % slope rise
-h_plot = y_slope + l*3;
-
+% plot height and width
+% h_plot = slope_y + 2*l;
 scaling = 1000;
+
+
+
+% f.Position(3:4) = scaling*[x_slope h_plot];
+
+% determine the initial spoke contact point
+slope_dist = sqrt(2*l^2 - 2*l^2*cos(spoke_ang)); % distance between points of contact along the slope
+%
+% s_init = cart2slope(x_slope, y_slope) - 5*slope_dist;
+
+% initialize foot at (0,0)
+p_contact = [0,0];
+
+% frame = zeros(len);
+
+% e is some small angle tolerance
+epsilon = 1e-10;
 
 % create a separate figure
 f = figure;
 
-% wheelVid = VideoWriter('wheelTraj'); %open video file
-% wheelVid.FrameRate = 10;  %can adjust this, 5 - 10 works well
-% open(wheelVid)
-% f.Position(3:4) = scaling*[x_slope h_plot];
+slope_length = 20 * l; % slope length is 10 times the body length
 
+plot_lim = slope2cart(0.5*slope_length, slope_ang);
 
+hold on;
 
+% last_collision = false; % is true when last index had a collision
 
-% determine the foot point of contact
-slope_dist = sqrt(2*l^2 - 2*l^2*cos(spoke_ang)); % distance between points of contact along the slope 
+for i = 1:length(ang)
 
-s_init = cart2slope(x_slope, y_slope) - 5*slope_dist;
-p_contact = slope2cart(s_init); %initialize at the top of the slope
+    % going down when making contact
+    if vel(i)>0 && abs(ang(i) - collision_ang) < epsilon
+        p_contact = p_contact - slope2cart(slope_dist, slope_ang);
+        wheelPlot(slope_ang, l, n, t(i), -ang(i), p_contact);
+        % last_collision = true;
 
-
-len = length(ang); % length of the ang vector
-% frame = zeros(len);
-
-for i = 1:len
-    if vel(i)>0 && abs(ang(i) - collision_ang) < 0.00001
-        p_contact = p_contact - slope2cart(slope_dist);
-        wheelPlot(x_slope, y_slope, h_plot, slope_ang, l, n, -ang(i), p_contact);
-    elseif vel(i)<0 && abs(ang(i) - collision_ang) < 0.00001
-        p_contact = p_contact + slope2cart(slope_dist);
-        wheelPlot(x_slope, y_slope, h_plot, slope_ang, l, n, ang(i), p_contact);
+        % going up when making contact
+    elseif vel(i)<0 && abs(ang(i) - collision_ang) < epsilon
+        p_contact = p_contact + slope2cart(slope_dist, slope_ang);
+        wheelPlot(slope_ang, l, n, t(i), ang(i), p_contact);
+        % last_collision = true;
     else
-        wheelPlot(x_slope, y_slope, h_plot, slope_ang, l, n, ang(i), p_contact);
+        wheelPlot(slope_ang, l, n, t(i), ang(i), p_contact);
+        % last_collision = false;
     end
+
+    hold off;
     pause(0.05);
 
+
     frame(i) = getframe; %get frame
-    % writeVideo(wheelVid, frame);
+
 end
-% movie(frame);
+
+
+end
+
+%% helper functions
+
+function y = yPoint(x, slope_ang)
+y = tan(slope_ang)*x;
+end
+
+function s = cart2slope(x, y)
+s = sqrt(x^2 + y^2);
+end
+
+function p = slope2cart(s, slope_ang)
+x = s*cos(slope_ang);
+y = s*sin(slope_ang);
+p = [x, y];
+end
+
+function com = foot2com(p_foot,l, ang)
+com = p_foot + l*[-cos(ang), sin(ang)];
 end

@@ -33,7 +33,6 @@ function [y_sol, sol, event_sol, frame]= wheelSimulation(slope_angle, l, m, I, n
 %  Slope
 % slope_angle = 1;  % degrees
 slope_angle = deg2rad(slope_angle);  % angle in radians
-slope_x_length = 10; % slope run in m, used for plotting
 
 %% Define parameters of the wheel
 %  Wheel
@@ -101,6 +100,8 @@ else
     error('No collision occurs during the time interval used. Increase the time interval for the simulation.')
 end
 
+disp(strcat('Simulation time: ', num2str(max(t)), ' s'));
+
 %% Plotting
 % plot the angle and velocity wrt time
 figure;
@@ -133,7 +134,7 @@ end
 
 % plot the wheel trajectory
 if fig_plot == true
-    frame = wheelTrajPlot(slope_x_length, slope_angle, l, n, sol, event_sol);
+    frame = wheelTrajPlot(slope_angle, l, n, sol, event_sol);
 else
     frame = 0;
 end
